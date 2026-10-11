@@ -213,26 +213,57 @@
     return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
   const wishHTML = (w, isNew) => `<li class="wish${isNew ? ' is-new' : ''}"><div class="wish__top"><span class="wish__name">${esc(w.name)}</span><span class="wish__time">${fmt(w.at)}</span></div><p class="wish__msg">${esc(w.msg)}</p></li>`;
-  const allWishes = () => [...store.get('wishes', []), ...W.sampleWishes];
-  $('#wishes').innerHTML = allWishes().map((w) => wishHTML(w)).join('');
+  // Lưu chung qua W.guestbookApi (Vercel Function + Turso). Không gọi được API
+  // (chạy `npm run dev`, chưa cấu hình) thì quay về localStorage trên máy khách.
+  let online = false;
+  const renderWishes = (list) => { $('#wishes').innerHTML = [...list, ...W.sampleWishes].map((w) => wishHTML(w)).join(''); };
+  renderWishes(store.get('wishes', []));
+  if (W.guestbookApi) {
+    fetch(W.guestbookApi, { headers: { Accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then(({ wishes }) => { online = true; renderWishes(wishes); })
+      .catch(() => {});
+  }
 
   let sIdx = Math.floor(Math.random() * W.wishSuggestions.length);
   $('#gb-suggest').addEventListener('click', () => {
     $('#gb-msg').value = W.wishSuggestions[sIdx++ % W.wishSuggestions.length];
     $('#gb-msg').focus();
   });
-  $('#gb-form').addEventListener('submit', (e) => {
+  const showWish = (w) => {
+    $('#wishes').insertAdjacentHTML('afterbegin', wishHTML(w, true));
+    $('#wishes').scrollTop = 0;
+    $('#gb-msg').value = '';
+    toast('Cảm ơn lời chúc của bạn!');
+  };
+  $('#gb-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('#gb-name').value.trim();
     const msg = $('#gb-msg').value.trim();
     if (!name) { $('#gb-name').focus(); toast('Vui lòng nhập tên của bạn'); return; }
     if (!msg) { $('#gb-msg').focus(); toast('Vui lòng nhập lời chúc'); return; }
-    const w = { name, msg, at: new Date().toISOString() };
-    store.set('wishes', [w, ...store.get('wishes', [])].slice(0, 50));
-    $('#wishes').insertAdjacentHTML('afterbegin', wishHTML(w, true));
-    $('#wishes').scrollTop = 0;
-    $('#gb-msg').value = '';
-    toast('Cảm ơn lời chúc của bạn!');
+    if (!online) {
+      const w = { name, msg, at: new Date().toISOString() };
+      store.set('wishes', [w, ...store.get('wishes', [])].slice(0, 50));
+      showWish(w);
+      return;
+    }
+    const btn = $('#gb-form .gb-send');
+    btn.disabled = true;
+    try {
+      const r = await fetch(W.guestbookApi, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, msg, website: $('#gb-hp').value }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) { toast(data.error || 'Không gửi được lời chúc, vui lòng thử lại'); return; }
+      showWish(data.wish || { name, msg, at: new Date().toISOString() });
+    } catch {
+      toast('Mất kết nối, vui lòng thử lại');
+    } finally {
+      btn.disabled = false;
+    }
   });
 
   /* ---------- 10. Hộp quà ---------- */

@@ -372,6 +372,8 @@ p, h1, h2, h3, ol, ul { margin: 0; }
 .gb-wand:hover { transform: scale(1.1); }
 .gb-send { padding: 6px 16px; border: 0; border-radius: 9999px; background: var(--wine); color: #fff; font-family: var(--f-ui); font-size: 10px; font-weight: 600; transition: transform .2s; }
 .gb-send:hover { transform: scale(1.05); }
+.gb-send:disabled { opacity: .6; transform: none; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .wishes { list-style: none; padding: 0 8px 0 0; margin: 32px auto 0; width: 100%; max-height: 500px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 .wish { border: 1px solid rgba(113, 0, 1, .2); border-radius: 8px; padding: 12px; background: #fff; font-family: var(--f-ui); font-size: 12px; font-weight: 300; }
 .wish__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }

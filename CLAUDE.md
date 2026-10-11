@@ -33,6 +33,7 @@ Site **tĩnh thuần HTML/CSS/JS**, không có bước build (người dùng yê
 index.html          # toàn bộ markup + SVG sprite icon
 css/style.css       # design tokens (:root) + style từng section
 js/wedding.js       # NGUỒN NỘI DUNG DUY NHẤT (window.WEDDING)
+api/guestbook.js    # Vercel Function: sổ lưu bút ↔ Turso
 js/main.js          # bind dữ liệu, lịch, album, sổ lưu bút, hộp quà, RSVP, animation
 public/images/album # ảnh cưới WebP
 public/images/ornaments # hoạ tiết (tối ưu từ docs/design)
@@ -44,7 +45,7 @@ docs/screenshots/   # ảnh chụp để so sánh
 
 - Không dùng thư viện JS. Carousel album 3D tự viết trong `main.js`. Chỉ tải Google Fonts.
 - Animation: CSS transition kết hợp `IntersectionObserver`, không dùng framework.
-- Sổ lưu bút và RSVP hiện **chỉ lưu `localStorage` trên máy khách**. Muốn lưu tập trung (Supabase hoặc Google Sheets) thì hỏi người dùng trước khi làm.
+- Sổ lưu bút lưu chung trên **Turso** qua Vercel Function `api/guestbook.js` (gọi HTTP API `/v2/pipeline` bằng `fetch`, không thư viện; cần env `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`). Token **không bao giờ** đưa vào code phía trình duyệt. Khi không gọi được API (`npm run dev`, chưa cấu hình) thì tự quay về `localStorage`. RSVP vẫn chỉ lưu `localStorage`.
 - Dev tool (`devDependencies`): `playwright-core` (chạy bằng Google Chrome có sẵn, `channel: 'chrome'`) và `sharp` (cắt ảnh để so sánh).
 
 Lệnh:

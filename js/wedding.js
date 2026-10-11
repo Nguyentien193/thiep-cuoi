@@ -64,6 +64,9 @@ window.WEDDING = {
   thankYou: 'Sự hiện diện của quý khách là niềm vinh hạnh của gia đình chúng tôi!',
   music: 'public/audio/music.m4a', // nén từ docs/audio/nhacnen.mp3 (AAC 96kbps). Để trống → ẩn nút nhạc
 
+  // API sổ lưu bút (api/guestbook.js trên Vercel, lưu Turso). Để '' thì chỉ lưu trên máy khách.
+  guestbookApi: '/api/guestbook',
+  // Lời chúc mẫu luôn hiện cuối danh sách. Để [] trước khi gửi thiệp thật.
   sampleWishes: [
     { name: 'An', msg: 'Chúc Thế Bảo và Ngọc Ánh luôn khỏe mạnh, bình an và tràn đầy niềm vui, để cùng nhau xây dựng một tương lai tốt đẹp!', at: '2026-01-24T22:31:22' },
     { name: 'Ngọc Quyên', msg: 'Chúc hai bạn luôn nắm tay nhau qua mọi chặng đường', at: '2025-12-19T10:07:42' },
